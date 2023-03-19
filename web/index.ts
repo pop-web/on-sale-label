@@ -4,11 +4,14 @@ import { readFileSync } from "fs";
 import express from "express";
 import serveStatic from "serve-static";
 
-import shopify from "./shopify.js";
-import productCreator from "./product-creator.js";
-import GDPRWebhookHandlers from "./gdpr.js";
+import shopify from "./shopify";
+import productCreator from "./product-creator";
+import GDPRWebhookHandlers from "./gdpr";
 
-const PORT = parseInt(process.env.BACKEND_PORT || process.env.PORT, 10);
+const PORT = parseInt(
+  (process.env.BACKEND_PORT as string) || (process.env.PORT as string),
+  10
+);
 
 const STATIC_PATH =
   process.env.NODE_ENV === "production"
@@ -47,7 +50,7 @@ app.get("/api/products/create", async (_req, res) => {
 
   try {
     await productCreator(res.locals.shopify.session);
-  } catch (e) {
+  } catch (e: any) {
     console.log(`Failed to process products/create: ${e.message}`);
     status = 500;
     error = e.message;

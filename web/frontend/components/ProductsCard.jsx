@@ -39,7 +39,7 @@ export function ProductsCard() {
 
     if (response.ok) {
       await refetchProductCount();
-      setToastProps({ content: "5 products created!" });
+      setToastProps({ content: "2 products created!" });
     } else {
       setIsLoading(false);
       setToastProps({
@@ -56,7 +56,7 @@ export function ProductsCard() {
         title="Product Counter"
         sectioned
         primaryFooterAction={{
-          content: "Populate 5 products",
+          content: "Populate 2 products",
           onAction: handlePopulate,
           loading: isLoading,
         }}

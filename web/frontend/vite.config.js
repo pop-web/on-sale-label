@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import https from "https";
 import react from "@vitejs/plugin-react";
 
 if (
@@ -50,6 +49,16 @@ export default defineConfig({
   },
   resolve: {
     preserveSymlinks: true,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "@shopify/polaris": ["@shopify/polaris"],
+          "@shopify/app-bridge-react": ["@shopify/app-bridge-react"],
+        },
+      },
+    },
   },
   server: {
     host: "localhost",

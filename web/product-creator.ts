@@ -1,5 +1,5 @@
-import { GraphqlQueryError } from "@shopify/shopify-api";
-import shopify from "./shopify.js";
+import { type Session, GraphqlQueryError } from "@shopify/shopify-api";
+import shopify from "./shopify";
 
 const ADJECTIVES = [
   "autumn",
@@ -69,7 +69,7 @@ const NOUNS = [
   "flower",
 ];
 
-export const DEFAULT_PRODUCTS_COUNT = 5;
+export const DEFAULT_PRODUCTS_COUNT = 2;
 const CREATE_PRODUCTS_MUTATION = `
   mutation populateProduct($input: ProductInput!) {
     productCreate(input: $input) {
@@ -81,7 +81,7 @@ const CREATE_PRODUCTS_MUTATION = `
 `;
 
 export default async function productCreator(
-  session,
+  session: Session,
   count = DEFAULT_PRODUCTS_COUNT
 ) {
   const client = new shopify.api.clients.Graphql({ session });
