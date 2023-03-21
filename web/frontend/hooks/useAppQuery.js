@@ -1,6 +1,6 @@
 import { useAuthenticatedFetch } from "./useAuthenticatedFetch";
 import { useMemo } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * A hook for querying your custom app data.
@@ -23,7 +23,7 @@ export const useAppQuery = ({ url, fetchInit = {}, reactQueryOptions }) => {
     };
   }, [url, JSON.stringify(fetchInit)]);
 
-  return useQuery(url, fetch, {
+  return useQuery([url], fetch, {
     ...reactQueryOptions,
     refetchOnWindowFocus: false,
   });
