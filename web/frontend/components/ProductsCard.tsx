@@ -1,18 +1,22 @@
 import { useState } from "react";
 import {
-  Card,
-  Heading,
-  TextContainer,
-  DisplayText,
-  TextStyle,
+  AlphaStack,
+  AlphaCard,
+  Text,
+  Box,
+  Button,
+  ButtonGroup,
 } from "@shopify/polaris";
 import { Toast } from "@shopify/app-bridge-react";
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 
 export function ProductsCard() {
-  const emptyToastProps = { content: null };
+  const emptyToastProps = { content: "", error: false };
   const [isLoading, setIsLoading] = useState(true);
-  const [toastProps, setToastProps] = useState(emptyToastProps);
+  const [toastProps, setToastProps] = useState<{
+    content: string;
+    error?: boolean;
+  }>(emptyToastProps);
   const fetch = useAuthenticatedFetch();
 
   const {
@@ -52,30 +56,30 @@ export function ProductsCard() {
   return (
     <>
       {toastMarkup}
-      <Card
-        title="Product Counter"
-        sectioned
-        primaryFooterAction={{
-          content: "Populate 2 products",
-          onAction: handlePopulate,
-          loading: isLoading,
-        }}
-      >
-        <TextContainer spacing="loose">
-          <p>
+      <AlphaCard>
+        <AlphaStack gap="5">
+          <Text as="h2" variant="headingLg">
+            Product Counter
+          </Text>
+          <Text as="p">
             Sample products are created with a default title and price. You can
             remove them at any time.
-          </p>
-          <Heading element="h4">
+          </Text>
+          <Text as="h4">
             TOTAL PRODUCTS
-            <DisplayText size="medium">
-              <TextStyle variation="strong">
+            <Box>
+              <Text as="span" fontWeight="bold" variant="headingXl">
                 {isLoadingCount ? "-" : data.count}
-              </TextStyle>
-            </DisplayText>
-          </Heading>
-        </TextContainer>
-      </Card>
+              </Text>
+            </Box>
+          </Text>
+          <ButtonGroup>
+            <Button onClick={handlePopulate} loading={isLoading}>
+              Populate 2 products
+            </Button>
+          </ButtonGroup>
+        </AlphaStack>
+      </AlphaCard>
     </>
   );
 }

@@ -1,21 +1,28 @@
 {
-  "name": "shopify-frontend-template-react",
+  "name": "on-sale-label",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "coverage": "vitest run --coverage"
+    "test": "vitest --reporter=verbose",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "npm run lint -- --fix",
+    "pretty": "prettier --write ."
   },
   "type": "module",
   "engines": {
-    "node": ">= 12.16"
+    "node": ">=16.0.0"
+  },
+  "stylelint": {
+    "extends": "@shopify/stylelint-polaris"
   },
   "dependencies": {
     "@shopify/app-bridge": "^3.7.2",
     "@shopify/app-bridge-react": "^3.7.2",
     "@shopify/app-bridge-utils": "^3.5.1",
-    "@shopify/polaris": "^10.27.2",
+    "@shopify/polaris": "^10.38.0",
     "@shopify/stylelint-polaris": "^5.2.0",
     "@tanstack/react-query": "^4.24.4",
     "@types/react-router-dom": "^5.3.3",
