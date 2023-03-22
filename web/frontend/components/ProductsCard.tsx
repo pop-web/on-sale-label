@@ -69,7 +69,7 @@ export function ProductsCard() {
             TOTAL PRODUCTS
             <Box>
               <Text as="span" fontWeight="bold" variant="headingXl">
-                {isLoadingCount ? "-" : data.count}
+                {isLoadingCount ? "-" : (data as { count: number }).count}
               </Text>
             </Box>
           </Text>

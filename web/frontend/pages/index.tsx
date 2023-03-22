@@ -17,7 +17,7 @@ import { ProductsCard } from "../components";
 export default function HomePage() {
   return (
     <Page narrowWidth>
-      <TitleBar title="セールスラベル" primaryAction={null} />
+      <TitleBar title="On Sale Label" primaryAction={null} />
       <Layout>
         <Layout.Section>
           <Card sectioned>
