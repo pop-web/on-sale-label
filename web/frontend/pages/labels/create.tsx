@@ -3,7 +3,7 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import { LabelForm } from "../../components";
 
 export default function ManageCode() {
-  const breadcrumbs = [{ content: "QR codes", url: "/" }];
+  const breadcrumbs = [{ content: "Labels", url: "/" }];
 
   return (
     <Page>

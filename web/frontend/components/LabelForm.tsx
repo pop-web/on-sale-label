@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, FC } from "react";
 import {
   Banner,
   Card,
@@ -36,15 +36,20 @@ import {
 
 type PickProduct = Pick<Product, "id" | "title" | "images" | "handle">;
 
-type InitialLabel = {
-  id?: string;
-  title?: string;
-  product?: PickProduct;
-  variantId?: string;
-  handle?: string;
-  discountId?: string;
-  discountCode?: string;
-  destination?: string;
+export type LabelType = {
+  id: string;
+  title: string;
+  product: PickProduct;
+  productId: string;
+  variantId: string;
+  handle: string;
+  discountId: string;
+  discountCode: string;
+  destination: string;
+};
+
+export type LabelDataType = {
+  labelData?: LabelType;
 };
 
 type FormFields = {
@@ -66,10 +71,12 @@ const NO_DISCOUNT_OPTION = { label: "No discount", value: "" };
 */
 const DISCOUNT_CODES = {};
 
-export const LabelForm = (InitialLabel?: InitialLabel) => {
-  const [label, setLabel] = useState(InitialLabel);
+export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
+  const [label, setLabel] = useState(labelData);
   const [showResourcePicker, setShowResourcePicker] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(label?.product);
+  const [selectedProduct, setSelectedProduct] = useState<PickProduct>(
+    label?.product
+  );
   const navigate = useNavigate();
   const appBridge = useAppBridge();
   const fetch = useAuthenticatedFetch();
@@ -121,13 +128,15 @@ export const LabelForm = (InitialLabel?: InitialLabel) => {
     onSubmit: useCallback(
       async (body: FormFields) => {
         (async () => {
-          const parsedBody = body;
-          // parsedBody.destination = parsedBody.destination[0];
-          const LabelId = label?.id;
+          const parsedBody = {
+            ...body,
+            destination: body.destination[0],
+          };
+          const labelId = label?.id;
           /* construct the appropriate URL to send the API request to based on whether the QR code is new or being updated */
-          const url = LabelId ? `/api/labels/${LabelId}` : "/api/labels";
+          const url = labelId ? `/api/labels/${labelId}` : "/api/labels";
           /* a condition to select the appropriate HTTP method: PATCH to update a QR code or POST to create a new QR code */
-          const method = LabelId ? "PATCH" : "POST";
+          const method = labelId ? "PATCH" : "POST";
           /* use (authenticated) fetch from App Bridge to send the request to the API and, if successful, clear the form to reset the ContextualSaveBar and parse the response JSON */
           const response = await fetch(url, {
             method,
@@ -136,10 +145,10 @@ export const LabelForm = (InitialLabel?: InitialLabel) => {
           });
           if (response.ok) {
             makeClean();
-            const QRCode = await response.json();
+            const label = await response.json();
             /* if this is a new QR code, then save the QR code and navigate to the edit page; this behavior is the standard when saving resources in the Shopify admin */
-            if (!LabelId) {
-              navigate(`/qrcodes/${QRCode.id}`);
+            if (!labelId) {
+              navigate(`/labels/${label.id}`);
               /* if this is a QR code update, update the QR code state in this component */
             } else {
               setLabel(label);

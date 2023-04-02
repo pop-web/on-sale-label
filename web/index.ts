@@ -8,6 +8,8 @@ import shopify from "./shopify";
 import productCreator from "./product-creator";
 import GDPRWebhookHandlers from "./gdpr";
 
+import labelRoutes from "./routes/labels";
+
 const PORT = parseInt(
   (process.env.BACKEND_PORT as string) || (process.env.PORT as string),
   10
@@ -19,6 +21,7 @@ const STATIC_PATH =
     : `${process.cwd()}/frontend/`;
 
 const app = express();
+const router = express.Router();
 
 // Set up Shopify authentication and webhook handling
 app.get(shopify.config.auth.path, shopify.auth.begin());
@@ -36,6 +39,8 @@ app.post(
 app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
+
+app.use("/api/labels", labelRoutes);
 
 app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({
