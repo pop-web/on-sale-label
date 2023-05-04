@@ -15,7 +15,12 @@ const createLabel = async (data: Prisma.labelCreateArgs) => {
   return await prisma.label.create({ data: data.data });
 };
 
+const getLabels = async () => {
+  return await prisma.label.findMany();
+};
+
 export default {
   getLabel,
   createLabel,
+  getLabels,
 };

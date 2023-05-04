@@ -17,7 +17,7 @@
     "@shopify/post-purchase-ui-extensions-react": "^0.13.2",
     "react": "^17.0.0"
   },
-  "author": "koga",
+  "author": "POP",
   "resolutions": {
     "@types/react": "17.0.30"
   }

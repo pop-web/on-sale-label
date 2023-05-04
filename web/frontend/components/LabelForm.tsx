@@ -1,20 +1,20 @@
 import { useState, useCallback, FC } from "react";
 import {
   Banner,
-  Card,
+  AlphaCard,
   Form,
   FormLayout,
   TextField,
   Button,
-  ChoiceList,
-  Select,
   Thumbnail,
   Icon,
-  Stack,
-  TextStyle,
   Layout,
-  EmptyState,
-  VideoThumbnail,
+  Text,
+  Box,
+  ButtonGroup,
+  DatePicker,
+  VerticalStack,
+  HorizontalStack,
 } from "@shopify/polaris";
 import {
   ContextualSaveBar,
@@ -38,14 +38,13 @@ type PickProduct = Pick<Product, "id" | "title" | "images" | "handle">;
 
 export type LabelType = {
   id: string;
-  title: string;
+  name: string;
   product: PickProduct;
-  productId: string;
   variantId: string;
-  handle: string;
-  discountId: string;
-  discountCode: string;
-  destination: string;
+  createdAt: string;
+  updatedAt: string;
+  startAt: string;
+  endAt: string;
 };
 
 export type LabelDataType = {
@@ -53,13 +52,10 @@ export type LabelDataType = {
 };
 
 type FormFields = {
-  title: string;
-  productId: string;
+  name: string;
   variantId: string;
-  handle: string;
-  discountId: string;
-  discountCode: string;
-  destination: string[];
+  startAt: string;
+  endAt: string;
 };
 
 const NO_DISCOUNT_OPTION = { label: "No discount", value: "" };
@@ -75,7 +71,7 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
   const [label, setLabel] = useState(labelData);
   const [showResourcePicker, setShowResourcePicker] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PickProduct>(
-    label?.product
+    labelData?.product
   );
   const navigate = useNavigate();
   const appBridge = useAppBridge();
@@ -93,15 +89,7 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
     Returns helpers to manage form state, as well as component state that is based on form state.
   */
   const {
-    fields: {
-      title,
-      productId,
-      variantId,
-      handle,
-      discountId,
-      discountCode,
-      destination,
-    },
+    fields: { name, variantId, startAt, endAt },
     dirty,
     reset,
     submitting,
@@ -109,28 +97,24 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
     makeClean,
   } = useForm({
     fields: {
-      title: useField({
-        value: label?.title || "",
-        validates: [notEmptyString("Please name your QR code")],
+      name: useField({
+        value: label?.name || "",
+        validates: [notEmptyString("Please title")],
       }),
-      productId: useField({
-        value: deletedProduct ? "Deleted product" : label?.product?.id || "",
+
+      variantId: useField({
+        value: deletedProduct ? "Deleted product" : label?.variantId || "",
         validates: [notEmptyString("Please select a product")],
       }),
-      variantId: useField(label?.variantId || ""),
-      handle: useField(label?.handle || ""),
-      destination: useField(
-        label?.destination ? [label.destination] : ["product"]
-      ),
-      discountId: useField(label?.discountId || NO_DISCOUNT_OPTION.value),
-      discountCode: useField(label?.discountCode || ""),
+      startAt: useField(label?.startAt || null),
+      endAt: useField(label?.endAt || null),
     },
     onSubmit: useCallback(
       async (body: FormFields) => {
+        console.log("body", body);
         (async () => {
           const parsedBody = {
             ...body,
-            destination: body.destination[0],
           };
           const labelId = label?.id;
           /* construct the appropriate URL to send the API request to based on whether the QR code is new or being updated */
@@ -178,19 +162,9 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
       images: selectedProducts[0].images,
       handle: selectedProducts[0].handle,
     });
-    productId.onChange(selectedProducts[0].id);
     variantId.onChange(selectedProducts[0].variants[0].id);
-    handle.onChange(selectedProducts[0].handle);
     setShowResourcePicker(false);
   }, []);
-
-  /*
-    This function updates the form state whenever a user selects a new discount option.
-  */
-  // const handleDiscountChange = useCallback((id) => {
-  //   discountId.onChange(id);
-  //   discountCode.onChange(DISCOUNT_CODES[id] || "");
-  // }, []);
 
   /*
     This function is called when a user clicks "Select product" or cancels the ProductPicker.
@@ -201,20 +175,6 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
     () => setShowResourcePicker(!showResourcePicker),
     [showResourcePicker]
   );
-
-  const {
-    data: discounts,
-    isLoading: isLoadingDiscounts,
-    isError: discountsError,
-    /* useAppQuery makes a query to `/api/discounts`, which the backend authenticates before fetching the data from the Shopify GraphQL Admin API */
-  } = useAppQuery({
-    url: "/api/discounts",
-    reactQueryOptions: {
-      onSuccess: () => {
-        setIsLoading(false);
-      },
-    },
-  });
 
   const [isDeleting, setIsDeleting] = useState(false);
   const deleteQRCode = useCallback(async () => {
@@ -236,26 +196,26 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
 
     It uses data from the App Bridge context as well as form state to construct destination URLs using the URL helpers you created.
   */
-  const goToDestination = useCallback(() => {
-    if (!selectedProduct) return;
-    const data = {
-      host: appBridge.hostOrigin,
-      productHandle: handle.value || selectedProduct.handle,
-      discountCode: discountCode.value || undefined,
-      variantId: variantId.value,
-    };
+  // const goToDestination = useCallback(() => {
+  //   if (!selectedProduct) return;
+  //   const data = {
+  //     host: appBridge.hostOrigin,
+  //     productHandle: handle.value || selectedProduct.handle,
+  //     discountCode: discountCode.value || undefined,
+  //     variantId: variantId.value,
+  //   };
 
-    const targetURL =
-      deletedProduct || destination.value[0] === "product"
-        ? productViewURL(data)
-        : productCheckoutURL(data);
+  //   const targetURL =
+  //     deletedProduct || destination.value[0] === "product"
+  //       ? productViewURL(data)
+  //       : productCheckoutURL(data);
 
-    window.open(targetURL, "_blank", "noreferrer,noopener");
-  }, [label, selectedProduct, destination, discountCode, handle, variantId]);
+  //   window.open(targetURL, "_blank", "noreferrer,noopener");
+  // }, [label, selectedProduct, destination, discountCode, handle, variantId]);
 
   /*
-    This array is used in a select field in the form to manage discount options
-  */
+      This array is used in a select field in the form to manage discount options
+    */
   // const discountOptions = discounts
   //   ? [
   //       NO_DISCOUNT_OPTION,
@@ -285,7 +245,7 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
 
   /* The form layout, created using Polaris and App Bridge components. */
   return (
-    <Stack vertical>
+    <VerticalStack>
       {deletedProduct && (
         <Banner
           title="The product for this QR code no longer exists."
@@ -317,119 +277,95 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
               fullWidth
             />
             <FormLayout>
-              <Card sectioned title="Title">
-                <TextField
-                  {...title}
-                  label="Title"
-                  labelHidden
-                  helpText="Only store staff can see this title"
-                  autoComplete="off"
-                />
-              </Card>
-
-              <Card
-                title="Product"
-                actions={[
-                  {
-                    content: productId.value
-                      ? "Change product"
-                      : "Select product",
-                    onAction: toggleResourcePicker,
-                  },
-                ]}
-              >
-                <Card.Section>
-                  {showResourcePicker && (
-                    <ResourcePicker
-                      resourceType="Product"
-                      showVariants={false}
-                      selectMultiple={false}
-                      onCancel={toggleResourcePicker}
-                      onSelection={handleProductChange}
-                      open
-                    />
-                  )}
-                  {productId.value ? (
-                    <Stack alignment="center">
-                      {originalImageSrc ? (
-                        <Thumbnail source={originalImageSrc} alt={altText} />
-                      ) : (
-                        <Thumbnail
-                          source={ImageMajor}
-                          // color="base"
-                          size="small"
-                          alt={altText}
-                        />
-                      )}
-                      <TextStyle variation="strong">
-                        {selectedProduct.title}
-                      </TextStyle>
-                    </Stack>
-                  ) : (
-                    <Stack vertical spacing="extraTight">
-                      <Button onClick={toggleResourcePicker}>
-                        Select product
-                      </Button>
-                      {productId.error && (
-                        <Stack spacing="tight">
-                          <Icon source={AlertMinor} color="critical" />
-                          <TextStyle variation="negative">
-                            {productId.error}
-                          </TextStyle>
-                        </Stack>
-                      )}
-                    </Stack>
-                  )}
-                </Card.Section>
-                <Card.Section title="Scan Destination">
-                  <ChoiceList
-                    title="Scan destination"
-                    titleHidden
-                    choices={[
-                      { label: "Link to product page", value: "product" },
-                      {
-                        label: "Link to checkout page with product in the cart",
-                        value: "checkout",
-                      },
-                    ]}
-                    selected={destination.value}
-                    onChange={destination.onChange}
+              <AlphaCard>
+                <VerticalStack gap="5">
+                  <Text as="h2" variant="headingLg">
+                    Title
+                  </Text>
+                  <TextField
+                    {...name}
+                    label="Title"
+                    labelHidden
+                    helpText="Only store staff can see this title"
+                    autoComplete="off"
                   />
-                </Card.Section>
-              </Card>
-              <Card
-                sectioned
-                title="Discount"
-                actions={[
-                  {
-                    content: "Create discount",
-                    onAction: () =>
-                      navigate(
-                        {
-                          name: "Discount",
-                          resource: {
-                            create: true,
-                          },
-                        },
-                        { target: "new" }
-                      ),
-                  },
-                ]}
-              >
-                {/* <Select
-                  label="discount code"
-                  options={discountOptions}
-                  onChange={handleDiscountChange}
-                  value={discountId.value}
-                  disabled={isLoadingDiscounts || discountsError}
-                  labelHidden
-                /> */}
-              </Card>
+                </VerticalStack>
+              </AlphaCard>
+
+              <AlphaCard>
+                <VerticalStack gap="5">
+                  <HorizontalStack align="space-between">
+                    <Text as="h2" variant="headingMd">
+                      Product
+                    </Text>
+                    <Button plain onClick={toggleResourcePicker}>
+                      {variantId.value ? "Change product" : "Select product"}
+                    </Button>
+                  </HorizontalStack>
+                  <Box>
+                    {showResourcePicker && (
+                      <ResourcePicker
+                        resourceType="Product"
+                        showVariants={false}
+                        selectMultiple={false}
+                        onCancel={toggleResourcePicker}
+                        onSelection={handleProductChange}
+                        open
+                      />
+                    )}
+                    {variantId.value ? (
+                      <HorizontalStack gap="2" blockAlign="center">
+                        {originalImageSrc ? (
+                          <Thumbnail source={originalImageSrc} alt={altText} />
+                        ) : (
+                          <Thumbnail
+                            source={ImageMajor}
+                            size="small"
+                            alt={altText}
+                          />
+                        )}
+                        <Text as="p" variant="headingSm">
+                          {selectedProduct.title}
+                        </Text>
+                      </HorizontalStack>
+                    ) : (
+                      <VerticalStack gap="5">
+                        <ButtonGroup>
+                          <Button onClick={toggleResourcePicker}>
+                            Select product
+                          </Button>
+                        </ButtonGroup>
+                        {variantId.error && (
+                          <HorizontalStack gap="1">
+                            <Text as="span">
+                              <Icon source={AlertMinor} color="critical" />
+                            </Text>
+                            <Text as="span" color="critical">
+                              {variantId.error}
+                            </Text>
+                          </HorizontalStack>
+                        )}
+                      </VerticalStack>
+                    )}
+                  </Box>
+                </VerticalStack>
+              </AlphaCard>
+
+              <AlphaCard>
+                <DatePicker
+                  month={1}
+                  year={2023}
+                  onChange={() => console.log("date")}
+                />
+              </AlphaCard>
             </FormLayout>
           </Form>
         </Layout.Section>
-        <Layout.Section secondary>
-          <Card sectioned title="QR code">
+        {/* <Layout.Section secondary>
+          <AlphaCard>
+            <Text as="h2" variant="headingLg">
+              Label
+            </Text>
             {label ? (
               <EmptyState imageContained={true} image={QRCodeURL} />
             ) : (
@@ -437,7 +373,7 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
                 <p>Your QR code will appear here after you save.</p>
               </EmptyState>
             )}
-            <Stack vertical>
+            <VerticalStack>
               <Button
                 fullWidth
                 primary
@@ -453,10 +389,10 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
                 disabled={!selectedProduct}
               >
                 Go to destination
-              </Button>
-            </Stack>
-          </Card>
-        </Layout.Section>
+              </Button> 
+            </VerticalStack>
+          </AlphaCard>
+        </Layout.Section> */}
         <Layout.Section>
           {label?.id && (
             <Button
@@ -470,7 +406,7 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
           )}
         </Layout.Section>
       </Layout>
-    </Stack>
+    </VerticalStack>
   );
 };
 

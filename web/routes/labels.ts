@@ -7,9 +7,16 @@ const PRODUCT_VARIANT_QUERY = `
   query productVariant($id: ID!){
     productVariant(id: $id) {
       id
-      title
-      image {
-        transformedSrc
+      product{
+        title
+        handle
+        images(first:1){
+          edges{
+            node{
+              url
+            }
+          }
+        }
       }
     }
   }
@@ -20,14 +27,11 @@ const labelRoutes = express.Router();
 labelRoutes.post("/", async (req, res) => {
   const reqBody = req.body;
 
-  let status = 200;
-  let error = null;
-
   try {
     const labelDate = await label.createLabel({
       data: reqBody,
     });
-    res.status(status).send(labelDate);
+    res.status(200).send(labelDate);
   } catch (error) {
     console.log(`Failed to process label create: ${(error as Error).message}`);
     res.status(500).send((error as Error).message);
@@ -58,8 +62,12 @@ labelRoutes.get("/:id", async (req, res) => {
       ...labelData,
       product: {
         id: productVariant.id,
-        title: productVariant.title,
-        images: productVariant.images,
+        title: productVariant.product.title,
+        images: productVariant.product.images.edges.map((edge: any) => ({
+          id: edge.node.id,
+          originalSrc: edge.node.url,
+        })),
+        handle: productVariant.product.handle,
       },
     });
   } catch (error) {
@@ -76,6 +84,52 @@ labelRoutes.get("/:id", async (req, res) => {
   //   const formattedQrCode = await formatQrCodeResponse(req, res, [qrcode]);
   //   res.status(200).send(formattedQrCode[0]);
   // }
+});
+
+labelRoutes.get("/", async (_req, res) => {
+  try {
+    const labelsData = await label.getLabels();
+
+    const client = new shopify.api.clients.Graphql({
+      session: res.locals.shopify.session,
+    });
+
+    const newLabelsData = await Promise.all(
+      labelsData.map(async (labelData) => {
+        const { body } = await client.query({
+          data: {
+            query: PRODUCT_VARIANT_QUERY,
+            variables: {
+              id: labelData?.variantId,
+            },
+          },
+        });
+        const productVariant = (body as any).data.productVariant;
+        return {
+          ...labelData,
+          product: {
+            id: productVariant.id,
+            title: productVariant.product.title,
+            images: productVariant.product.images.edges.map((edge: any) => ({
+              id: edge.node.id,
+              originalSrc: edge.node.url,
+            })),
+            handle: productVariant.product.handle,
+          },
+        };
+      })
+    );
+
+    res.status(200).send(newLabelsData);
+  } catch (error) {
+    if (error instanceof GraphqlQueryError) {
+      throw new Error(
+        `${error.message}\n${JSON.stringify(error.response, null, 2)}`
+      );
+    } else {
+      throw error;
+    }
+  }
 });
 
 labelRoutes.get("/count", async (_req, res) => {

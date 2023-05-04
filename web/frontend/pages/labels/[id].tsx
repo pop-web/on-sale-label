@@ -15,7 +15,7 @@ export default function labelEdit() {
     useAppQuery uses useAuthenticatedQuery from App Bridge to authenticate the request.
     The backend supplements app data with data queried from the Shopify GraphQL Admin API.
   */
-  const { data, isLoading, isRefetching } = useAppQuery({
+  const { data, isLoading, isRefetching } = useAppQuery<LabelType>({
     url: `/api/labels/${id}`,
     reactQueryOptions: {
       /* Disable refetching because the QRCodeForm component ignores changes to its props */
@@ -65,7 +65,7 @@ export default function labelEdit() {
         breadcrumbs={breadcrumbs}
         primaryAction={null}
       />
-      <LabelForm labelData={data as LabelType} />
+      <LabelForm labelData={data} />
     </Page>
   );
 }

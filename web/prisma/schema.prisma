@@ -11,12 +11,11 @@ datasource db {
 }
 
 model label {
-  id           Int     @id @default(autoincrement())
-  title        String
-  productId    String
-  variantId    String
-  handle       String
-  destination  String?
-  discountId   String?
-  discountCode String?
+  id        Int       @id @default(autoincrement())
+  variantId String
+  name      String?
+  startAt   DateTime?
+  endAt     DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
 }

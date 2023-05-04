@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  AlphaStack,
+  VerticalStack,
   AlphaCard,
   Text,
   Box,
@@ -57,7 +57,7 @@ export function ProductsCard() {
     <>
       {toastMarkup}
       <AlphaCard>
-        <AlphaStack gap="5">
+        <VerticalStack gap="5">
           <Text as="h2" variant="headingLg">
             Product Counter
           </Text>
@@ -78,7 +78,7 @@ export function ProductsCard() {
               Populate 2 products
             </Button>
           </ButtonGroup>
-        </AlphaStack>
+        </VerticalStack>
       </AlphaCard>
     </>
   );
