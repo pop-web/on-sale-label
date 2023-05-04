@@ -20,7 +20,7 @@ import { LabelType } from "./LabelForm";
 import { Navigate, To } from "@shopify/app-bridge/actions/Navigation/Redirect";
 
 /* Markup for small screen sizes (mobile) */
-function SmallScreenCard({
+const SmallScreenCard = ({
   id,
   name,
   product,
@@ -30,9 +30,9 @@ function SmallScreenCard({
   id: string;
   name?: string;
   product: LabelType["product"];
-  createdAt: string;
+  createdAt: Date;
   navigate: Navigate<To>;
-}) {
+}) => {
   return (
     <UnstyledLink onClick={() => navigate(`/labels/${id}`)}>
       <div
@@ -61,7 +61,7 @@ function SmallScreenCard({
       </div>
     </UnstyledLink>
   );
-}
+};
 
 export const LabelIndex: FC<{ labels: LabelType[]; loading: boolean }> = ({
   labels,

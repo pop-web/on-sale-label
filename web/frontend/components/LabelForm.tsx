@@ -12,7 +12,6 @@ import {
   Text,
   Box,
   ButtonGroup,
-  DatePicker,
   VerticalStack,
   HorizontalStack,
 } from "@shopify/polaris";
@@ -25,7 +24,7 @@ import {
 import { ImageMajor, AlertMinor } from "@shopify/polaris-icons";
 
 /* Import the useAuthenticatedFetch hook included in the Node app template */
-import { useAuthenticatedFetch, useAppQuery } from "../hooks";
+import { useAuthenticatedFetch } from "../hooks";
 
 /* Import custom hooks for forms */
 import { useForm, useField, notEmptyString } from "@shopify/react-form";
@@ -33,39 +32,31 @@ import {
   SelectPayload,
   Product,
 } from "@shopify/app-bridge/actions/ResourcePicker";
+import { DatePickerForm } from "./DatePickerForm";
 
 type PickProduct = Pick<Product, "id" | "title" | "images" | "handle">;
+
+export type LabelDataType = {
+  labelData?: LabelType;
+};
 
 export type LabelType = {
   id: string;
   name: string;
   product: PickProduct;
   variantId: string;
-  createdAt: string;
-  updatedAt: string;
-  startAt: string;
-  endAt: string;
-};
-
-export type LabelDataType = {
-  labelData?: LabelType;
+  createdAt: Date;
+  updatedAt: Date;
+  startAt: Date;
+  endAt: Date;
 };
 
 type FormFields = {
   name: string;
   variantId: string;
-  startAt: string;
-  endAt: string;
+  startAt: Date;
+  endAt: Date;
 };
-
-const NO_DISCOUNT_OPTION = { label: "No discount", value: "" };
-
-/*
-  The discount codes available in the store.
-
-  This variable will only have a value after retrieving discount codes from the API.
-*/
-const DISCOUNT_CODES = {};
 
 export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
   const [label, setLabel] = useState(labelData);
@@ -77,7 +68,6 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
   const appBridge = useAppBridge();
   const fetch = useAuthenticatedFetch();
   const deletedProduct = label?.product?.title === "Deleted product";
-  const [isLoading, setIsLoading] = useState(true);
 
   /*
     Sets up the form state with the useForm hook.
@@ -106,12 +96,12 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
         value: deletedProduct ? "Deleted product" : label?.variantId || "",
         validates: [notEmptyString("Please select a product")],
       }),
-      startAt: useField(label?.startAt || null),
-      endAt: useField(label?.endAt || null),
+      startAt: useField(label?.startAt),
+      endAt: useField(label?.endAt),
     },
     onSubmit: useCallback(
       async (body: FormFields) => {
-        console.log("body", body);
+        console.log({ body });
         (async () => {
           const parsedBody = {
             ...body,
@@ -181,7 +171,7 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
     reset();
     /* The isDeleting state disables the download button and the delete QR code button to show the merchant that an action is in progress */
     setIsDeleting(true);
-    const response = await fetch(`/api/qrcodes/${label.id}`, {
+    const response = await fetch(`/api/labels/${label.id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
@@ -278,8 +268,8 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
             />
             <FormLayout>
               <AlphaCard>
-                <VerticalStack gap="5">
-                  <Text as="h2" variant="headingLg">
+                <VerticalStack gap="3">
+                  <Text as="h2" variant="headingMd">
                     Title
                   </Text>
                   <TextField
@@ -291,9 +281,8 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
                   />
                 </VerticalStack>
               </AlphaCard>
-
               <AlphaCard>
-                <VerticalStack gap="5">
+                <VerticalStack gap="3">
                   <HorizontalStack align="space-between">
                     <Text as="h2" variant="headingMd">
                       Product
@@ -329,7 +318,7 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
                         </Text>
                       </HorizontalStack>
                     ) : (
-                      <VerticalStack gap="5">
+                      <VerticalStack gap="3">
                         <ButtonGroup>
                           <Button onClick={toggleResourcePicker}>
                             Select product
@@ -350,13 +339,13 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
                   </Box>
                 </VerticalStack>
               </AlphaCard>
-
               <AlphaCard>
-                <DatePicker
-                  month={1}
-                  year={2023}
-                  onChange={() => console.log("date")}
-                />
+                <VerticalStack gap="3">
+                  <Text as="h2" variant="headingMd">
+                    Date range
+                  </Text>
+                  <DatePickerForm startAt={startAt} endAt={endAt} />
+                </VerticalStack>
               </AlphaCard>
             </FormLayout>
           </Form>
@@ -401,7 +390,7 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
               onClick={deleteQRCode}
               loading={isDeleting}
             >
-              Delete QR code
+              Delete Label
             </Button>
           )}
         </Layout.Section>

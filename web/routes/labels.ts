@@ -79,11 +79,21 @@ labelRoutes.get("/:id", async (req, res) => {
       throw error;
     }
   }
+});
 
-  // if (qrcode) {
-  //   const formattedQrCode = await formatQrCodeResponse(req, res, [qrcode]);
-  //   res.status(200).send(formattedQrCode[0]);
-  // }
+labelRoutes.patch("/:id", async (req, res) => {
+  const { id } = req.params;
+  const reqBody = req.body;
+
+  try {
+    const labelDate = await label.updateLabel(Number(id), {
+      data: reqBody,
+    });
+    res.status(200).send(labelDate);
+  } catch (error) {
+    console.log(`Failed to process label create: ${(error as Error).message}`);
+    res.status(500).send((error as Error).message);
+  }
 });
 
 labelRoutes.get("/", async (_req, res) => {
