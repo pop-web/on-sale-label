@@ -27,7 +27,12 @@ import { ImageMajor, AlertMinor } from "@shopify/polaris-icons";
 import { useAuthenticatedFetch } from "../hooks";
 
 /* Import custom hooks for forms */
-import { useForm, useField, notEmptyString } from "@shopify/react-form";
+import {
+  useForm,
+  useField,
+  notEmptyString,
+  notEmpty,
+} from "@shopify/react-form";
 import {
   SelectPayload,
   Product,
@@ -89,15 +94,21 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
     fields: {
       name: useField({
         value: label?.name || "",
-        validates: [notEmptyString("Please title")],
+        validates: [notEmptyString("Please Name")],
       }),
 
       variantId: useField({
         value: deletedProduct ? "Deleted product" : label?.variantId || "",
         validates: [notEmptyString("Please select a product")],
       }),
-      startAt: useField(label?.startAt),
-      endAt: useField(label?.endAt),
+      startAt: useField({
+        value: label?.startAt,
+        validates: [notEmpty("Please select start date")],
+      }),
+      endAt: useField({
+        value: label?.endAt,
+        validates: [notEmpty("Please select end date")],
+      }),
     },
     onSubmit: useCallback(
       async (body: FormFields) => {
@@ -270,13 +281,13 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
               <AlphaCard>
                 <VerticalStack gap="3">
                   <Text as="h2" variant="headingMd">
-                    Title
+                    Name
                   </Text>
                   <TextField
                     {...name}
-                    label="Title"
+                    label="Name"
                     labelHidden
-                    helpText="Only store staff can see this title"
+                    helpText="Only store staff can see this Name."
                     autoComplete="off"
                   />
                 </VerticalStack>
@@ -345,6 +356,16 @@ export const LabelForm: FC<LabelDataType> = ({ labelData }) => {
                     Date range
                   </Text>
                   <DatePickerForm startAt={startAt} endAt={endAt} />
+                  {(startAt.error || endAt.error) && (
+                    <HorizontalStack gap="1">
+                      <Text as="span">
+                        <Icon source={AlertMinor} color="critical" />
+                      </Text>
+                      <Text as="span" color="critical">
+                        {startAt.error || endAt.error}
+                      </Text>
+                    </HorizontalStack>
+                  )}
                 </VerticalStack>
               </AlphaCard>
             </FormLayout>

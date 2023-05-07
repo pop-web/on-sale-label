@@ -9,15 +9,15 @@ export const DatePickerForm: FC<{
   endAt: Field<Date>;
 }> = ({ startAt, endAt }) => {
   const [startDate, setStartDate] = useState(
-    startAt.value ? new Date(startAt.value) : new Date()
+    startAt.value ? new Date(startAt.value) : null
   );
   const [endDate, setEndDate] = useState(
-    endAt.value ? new Date(endAt.value) : new Date()
+    endAt.value ? new Date(endAt.value) : null
   );
 
   return (
     <HorizontalStack gap="5">
-      <VerticalStack gap="2">
+      <VerticalStack gap="1">
         <Text as="h2" variant="headingSm">
           Start Date
         </Text>
@@ -29,11 +29,11 @@ export const DatePickerForm: FC<{
             startAt.onChange(date);
           }}
           timeInputLabel="Time:"
-          dateFormat="MM/dd/yyyy h:mm aa"
+          dateFormat="yyyy/MM/dd HH:mm"
           showTimeInput
         />
       </VerticalStack>
-      <VerticalStack gap="2">
+      <VerticalStack gap="1">
         <Text as="h2" variant="headingSm">
           End Date
         </Text>
@@ -45,7 +45,7 @@ export const DatePickerForm: FC<{
             endAt.onChange(date);
           }}
           timeInputLabel="Time:"
-          dateFormat="MM/dd/yyyy h:mm aa"
+          dateFormat="yyyy/MM/dd HH:mm"
           showTimeInput
         />
       </VerticalStack>

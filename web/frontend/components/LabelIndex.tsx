@@ -53,7 +53,7 @@ const SmallScreenCard = ({
                   <TextStyle variation="strong">{truncate(name, 35)}</TextStyle>
                 </p>
                 <p>{truncate(product?.title, 35)}</p>
-                <p>{dayjs(createdAt).format("MMMM D, YYYY")}</p>
+                <p>{dayjs(createdAt).format("YYYY/MM/D")}</p>
               </Stack.Item>
             </Stack>
           </Stack.Item>
@@ -118,7 +118,7 @@ export const LabelIndex: FC<{ labels: LabelType[]; loading: boolean }> = ({
           </Stack>
         </IndexTable.Cell>
         <IndexTable.Cell>
-          {dayjs(createdAt).format("MMMM D, YYYY")}
+          {dayjs(createdAt).format("YYYY/MM/DD HH:mm")}
         </IndexTable.Cell>
       </IndexTable.Row>
     );
