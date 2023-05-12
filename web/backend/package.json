@@ -5,7 +5,9 @@
   "scripts": {
     "debug": "node --inspect-brk index.js",
     "dev": "cross-env NODE_ENV=development nodemon --experimental-specifier-resolution=node index.ts",
-    "serve": "cross-env NODE_ENV=production node dist/index.js"
+    "build": "tsc --skipLibCheck",
+    "serve": "cross-env NODE_ENV=production node dist/index.js",
+    "start": "npm run prisma:migrate && npm run serve"
   },
   "type": "module",
   "engines": {

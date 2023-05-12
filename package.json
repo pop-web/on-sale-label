@@ -1,7 +1,7 @@
 {
   "name": "on-sale-label",
   "version": "1.0.0",
-  "main": "web/index.js",
+  "main": "web/backend/index.js",
   "license": "UNLICENSED",
   "scripts": {
     "shopify": "shopify",
@@ -14,8 +14,7 @@
   "dependencies": {
     "@shopify/app": "3.43.0",
     "@shopify/cli": "3.43.0",
-    "@shopify/post-purchase-ui-extensions-react": "^0.13.2",
-    "react": "^17.0.0"
+    "@shopify/post-purchase-ui-extensions-react": "^0.13.2"
   },
   "author": "POP",
   "resolutions": {
